@@ -94,7 +94,7 @@ class Demo():
         processed_video = self.plot_video(video, outputs, queries_input["num_real_pt"].cpu().item(), queries_input["query_frames"][:queries_input["num_real_pt"].cpu().item()].cpu())
         save_video_path = get_video_name(dir_save=self.args.output_dir)
         save_video(processed_video, save_video_path, fps)
-        return save_video_path, pred_locations, pred_occluded
+        return save_video_path, pred_locations.detach().cpu().numpy(), pred_occluded.detach().cpu().numpy()
 
     def align_format(self, images, targets):
         if self.transforms is not None:
@@ -443,27 +443,6 @@ def video_to_interaction(input_video, frame_selector):
     return {"image": interaction, "points": []}
 
 
-def process_one_video(input_video, frame, interaction):
-    """tracking the points from interaction along the video.
-
-    Args:
-        input_video (_type_): _description_
-        frame (_type_): _description_
-        interaction (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    global DemoCore
-    start_tracking_frames = [frame] * len(interaction["points"])
-    points = interaction["points"]
-    if len(points) == 0:
-        raise ValueError("No points found to be tracked.")
-    video, fps = read_video_from_path(input_video)
-    output_video = DemoCore.process_one_video(video, fps, points, start_tracking_frames)
-    return output_video
-
-
 def main():
     args = get_args()
     os.makedirs(args.output_dir, exist_ok=True)
@@ -495,8 +474,9 @@ if __name__ == "__main__":
 
 
 # CUDA_VISIBLE_DEVICES=0 python demo_cli.py \
+#     --config_file /content/TAPTR/config/TAPTR.py \
 #     --path_ckpt /content/drive/MyDrive/pretrained_models/TAPTR/taptr.pth \
 #     --video_path /content/input.mp4 \
-#     --points "100,200;300,400" \
+#     --points "800,200;800,400" \
 #     --start_frame 0 \
-#     --output_video output.mp4
+#     --output_dir /content/output
