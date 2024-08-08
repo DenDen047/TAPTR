@@ -99,7 +99,7 @@ class Demo():
             "query_frames": targets.pop("query_frames"),
         }
         return images, targets, seq_name
-        
+
     def prepare_queries(self, width, height, points, n_frames, start_tracking_frames, num_padding=-1):
         """prepare the points to be tracked.
 
@@ -147,9 +147,9 @@ class Demo():
         tracking_mask = tracking_mask >= start_tracking_frames[:, None]
         queries = {
                 "points": torch.from_numpy(query_xy).float(),
-                'occluded': torch.from_numpy(query_occ), 
-                'num_frames': n_frames, 
-                'sampled_frame_ids': torch.arange(n_frames), 
+                'occluded': torch.from_numpy(query_occ),
+                'num_frames': n_frames,
+                'sampled_frame_ids': torch.arange(n_frames),
                 'tracking_mask': tracking_mask,
                 'query_frames': start_tracking_frames,
                 'sampled_point_ids': torch.arange(query_xy.shape[0]),
@@ -197,7 +197,7 @@ def draw_tracks_on_video(
         mode (str, optional): _description_. Defaults to "rainbow".
         tracks_leave_trace (int, optional): _description_. Defaults to -1.
     """
-    
+
     def _draw_pred_tracks(
         rgb: np.ndarray,  # H x W x 3
         tracks: np.ndarray,  # T x N x 2
@@ -233,12 +233,12 @@ def draw_tracks_on_video(
             if tracks_leave_trace > 0:
                 rgb = cv2.addWeighted(rgb, alpha, original, 1 - alpha, 0)
         return rgb
-    
+
     if mode == "rainbow":
         color_map = cm.get_cmap("gist_rainbow")
     elif mode == "cool":
         color_map = cm.get_cmap(mode)
-        
+
     T, H, W, C = video.shape
     _, N, D = tracks.shape
 
@@ -270,7 +270,7 @@ def draw_tracks_on_video(
         for t in range(T):
             color = np.array(color_map(t / T)[:3])[None] * 255
             vector_colors[t] = np.repeat(color, N, axis=0)
-    
+
     point_size = 3
     #  draw tracks
     if tracks_leave_trace != 0:
@@ -293,7 +293,7 @@ def draw_tracks_on_video(
                 # curr_tracks = curr_tracks - diff
                 # curr_tracks = curr_tracks[:, segm_mask > 0]
                 # curr_colors = curr_colors[:, segm_mask > 0]
-            
+
             draw_flag = t >= query_frames
             res_video[t] = _draw_pred_tracks(
                 res_video[t],
@@ -437,7 +437,7 @@ def process_one_video(input_video, frame, interaction):
 with gr.Blocks(title="TAPTR") as demo:
     title_markdown = ("""
         # TAPTR: **T**racking **A**ny **P**oint with **TR**ansformer as Detection
-        ### Point Trajectory Demo [[TrackAnyArea Demo]](https://taptr-videoediting.deepdataspace.com) 
+        ### Point Trajectory Demo [[TrackAnyArea Demo]](https://taptr-videoediting.deepdataspace.com)
         [[Project Page]](https://taptr.github.io) [[Paper-TAPTR]](https://arxiv.org/abs/2403.13042) [[Paper-TAPTRv2]](https://arxiv.org/abs/2407.16291) [[Code]](https://github.com/IDEA-Research/TAPTR)
     """)
     tips = ("""
@@ -454,11 +454,11 @@ with gr.Blocks(title="TAPTR") as demo:
             3. If you have any questions feel free to contact us or open an issue in our [repo](https://github.com/IDEA-Research/TAPTR).
     """)
     notation = ("""
-        💡Since TAPTR is a general point tracking method, feel free to upload and evaluate your own video. 
-        
+        💡Since TAPTR is a general point tracking method, feel free to upload and evaluate your own video.
+
         💡To alleviate our computational load, if the length of your input video exceeds 700 frames, we will clamp the video to 700 frames.
-                
-        💡The frame selector can not adjust the range automatically, if the selected frame exceed the video length, the demo will fail. 
+
+        💡The frame selector can not adjust the range automatically, if the selected frame exceed the video length, the demo will fail.
     """)
     gr.Markdown(title_markdown)
     with gr.Row():
@@ -497,6 +497,6 @@ if __name__ == "__main__":
     global DemoCore
     args = get_args()
     DemoCore = Demo(args)
-    demo.launch(server_name="0.0.0.0", server_port=10004)
+    demo.launch(share=True)
 
 # CUDA_VISIBLE_DEVICES=0 python demo_inter.py -c config/TAPTR.py --path_ckpt logs/TAPTR/taptr.pth
